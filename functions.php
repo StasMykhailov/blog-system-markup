@@ -1,12 +1,9 @@
 <?php
-
 session_start();
-
 function addUser($email, $firstName, $lastName, $password) {
     //TODO: refactor user db
     $userId = 1;
     $usersDb = fopen("db/users.db", "a+");
-
     if($usersDb) {
         fseek($usersDb, 0);
         while(!feof($usersDb)) {
@@ -14,9 +11,7 @@ function addUser($email, $firstName, $lastName, $password) {
             fgets($usersDb);
         }
     }
-
     fseek($usersDb, 0, SEEK_END);
-
     $line = json_encode([
         'id' => $userId,
         'email' => $email,
@@ -24,17 +19,15 @@ function addUser($email, $firstName, $lastName, $password) {
         'lastName' => $lastName,
         'password' => sha1( $password ),
     ]);
-
     if($usersDb) {
         fwrite($usersDb, $line . PHP_EOL);
         fclose($usersDb);
         return true;
     }
-
     return false;
 }
-
 function userExist($email) {
+    //TODO: refactor user db
     $usersDb = fopen("db/users.db", "r");
     if(!$usersDb) {
         return false;
@@ -49,14 +42,13 @@ function userExist($email) {
                 }
             }
         }
-
         fclose($usersDb);
         return false;
     }
 }
-
 function checkUser($email, $password) {
     $password = sha1($password);
+    //TODO: refactor user db
     $usersDb = fopen("db/users.db", "r");
     if(!$usersDb) {
         return false;
@@ -74,15 +66,11 @@ function checkUser($email, $password) {
                 }
             }
         }
-
         fclose($usersDb);
         return false;
-
     }
 }
-
 function getUserById($id) {
-
     //TODO: refactor user db
     $usersDb = fopen("db/users.db", "r");
     if(!$usersDb) {
@@ -97,9 +85,9 @@ function getUserById($id) {
             }
         }
     }
-
     return false;
 }
+function addPost($userId, $title, $body, $filePath = false, $fileName = false) {
     $userDb = fopen("db/$userId.db", "a+");
     if(!$userDb) {
         return false;
@@ -109,23 +97,51 @@ function getUserById($id) {
         $filePath &&
         is_uploaded_file($filePath)
     ) {
-        //TODO: check image (getimagesize)
-        $pathInfo = pathinfo($filePath);
-        $name = "img_" .
-            time() . "." .
-            $pathInfo['extension'];
-
-        move_uploaded_file(
-            $filePath, "img/" . $name
-        );
+        $imageInfo = getimagesize($filePath);
+        if($imageInfo) {
+            $pathInfo = pathinfo($fileName);
+            $name = "img_" .
+                time() . "." .
+                $pathInfo['extension'];
+            move_uploaded_file(
+                $filePath, "img/" . $name
+            );
+        }
     }
-
     fwrite($userDb, json_encode([
-        'title' => $title,
-        'body' => $body,
-        'image' => $name,
-        'createdAt' => date("d.m.Y H:i:s"),
-    ]));
+            'title' => $title,
+            'body' => $body,
+            'image' => $name,
+            'createdAt' => date("d.m.Y H:i:s"),
+        ]) . PHP_EOL);
     fclose($userDb);
     return true;
+}
+function getPostsCount($userId) {
+    $posts = fopen("db/" . $userId . ".db", "r");
+    $counter = 0;
+    while(!feof($posts)) {
+        if(fgets($posts)) {
+            $counter++;
+        }
+    }
+    fclose($posts);
+    return $counter;
+}
+function getPostsByUserId($userId, $page = 1) {
+    $pageCount = 2;
+    $shift = ($page - 1) * $pageCount;
+    $posts = fopen("db/" . $userId . ".db", "r");
+    $results = [];
+    $counter = 0;
+    while(!feof($posts) && $counter < $pageCount) {
+        if($line = fgets($posts)) {
+
+            $post = json_decode($line, true);
+            $results[] = $post;
+        }
+        $counter++;
+    }
+    fclose($posts);
+    return $results;
 }
