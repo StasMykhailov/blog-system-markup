@@ -109,7 +109,6 @@ function addPost($userId, $title, $body, $filePath = false, $fileName = false) {
 
     $path = tempnam('NOT_EXIST', 'tempDb_');
 
-    //$userDb = fopen("db/$userId.db", "a+");
     $userDb = fopen($path, "a+");
 
     if(!$userDb) {
@@ -142,15 +141,18 @@ function addPost($userId, $title, $body, $filePath = false, $fileName = false) {
         'createdAt' => date("d.m.Y H:i:s"),
     ]) . PHP_EOL);
 
+    $oldDb = "db/$userId.db";
 
-    $oldUserDb = fopen("db/$userId.db", "r");
+    if(file_exists($oldDb)) {
+        $oldUserDb = fopen($oldDb, "r");
 
-    while(!feof($oldUserDb)) {
-        $line = fgets($oldUserDb);
-        fwrite($userDb, $line);
+        while (!feof($oldUserDb)) {
+            $line = fgets($oldUserDb);
+            fwrite($userDb, $line);
+        }
+
+        fclose($oldUserDb);
     }
-
-    fclose($oldUserDb);
     fclose($userDb);
 
     rename($path, "db/$userId.db");
@@ -158,38 +160,157 @@ function addPost($userId, $title, $body, $filePath = false, $fileName = false) {
     return true;
 }
 
-function getPostsCount($userId) {
-    $posts = fopen("db/" . $userId . ".db", "r");
+function searchByUser($userId, $search, $page = 1) {
+    $pageCount = 2;
+    $results = [];
+    $shift = ($page - 1) * $pageCount;
+    if(file_exists("db/" . $userId . ".db")) {
+        $posts = fopen("db/" . $userId . ".db", "r");
+
+        for ($i = 0; $i < $shift;) {
+
+            if($line = fgets($posts)){
+                $post = json_decode($line, true);
+                if(
+                    stripos($post['title'], $search) !== false ||
+                    stripos($post['body'], $search) !== false
+                ) {
+                    $i++;
+                }
+            }
+        }
+
+
+        $counter = 0;
+        while (!feof($posts) && $counter < $pageCount) {
+            if ($line = fgets($posts)) {
+                $post = json_decode($line, true);
+                if(
+                    stripos($post['title'], $search) !== false ||
+                    stripos($post['body'], $search) !== false
+                ) {
+                    $results[] = $post;
+                    $counter++;
+                }
+            }
+
+
+        }
+
+        fclose($posts);
+    }
+    return $results;
+}
+
+function getPostsCountSearch($userId, $search) {
+    $fileName = "db/" . $userId . ".db";
     $counter = 0;
-    while(!feof($posts)) {
-        if(fgets($posts)) {
-            $counter++;
+    if(file_exists($fileName)) {
+        $posts = fopen($fileName, "r");
+
+        if ($posts) {
+            while (!feof($posts)) {
+                if ($line = fgets($posts)) {
+                    $post = json_decode($line, true);
+
+                    if(
+                        stripos($post['title'], $search) !== false ||
+                        stripos($post['body'], $search) !== false
+                    ) {
+                        $counter++;
+                    }
+                }
+            }
+            fclose($posts);
         }
     }
-    fclose($posts);
+
     return $counter;
+}
+
+function getPostsCount($userId) {
+    $fileName = "db/" . $userId . ".db";
+    $counter = 0;
+    if(file_exists($fileName)) {
+        $posts = fopen($fileName, "r");
+
+        if ($posts) {
+            while (!feof($posts)) {
+                if (fgets($posts)) {
+                    $counter++;
+                }
+            }
+            fclose($posts);
+        }
+    }
+
+    return $counter;
+}
+
+function getPhotosCount($userId) {
+    $posts = @fopen("db/" . $userId . ".db", "r");
+    $counter = 0;
+    if($posts) {
+        while (!feof($posts)) {
+            if ($line = fgets($posts)) {
+                $line = json_decode($line, true);
+                if ($line['image']) {
+                    $counter++;
+                }
+            }
+        }
+        fclose($posts);
+    }
+    return $counter;
+}
+
+function getBloggers() {
+    $usersDb = fopen("db/users.db", "r");
+    $results = [];
+
+    $i = 0;
+    while(!feof($usersDb) && $i < 20) {
+        if($line = fgets($usersDb)) {
+            $line = json_decode($line, true);
+            $results[] = [
+                'id' => $line['id'],
+                'name' => $line['firstName']
+                    . ' ' . $line['lastName'],
+                'postCount' => getPostsCount($line['id']),
+                'photosCount' => getPhotosCount($line['id'])
+            ];
+            $i++;
+        }
+    }
+    fclose($usersDb);
+
+    return $results;
+
 }
 
 function getPostsByUserId($userId, $page = 1) {
     $pageCount = 2;
-    $shift = ($page - 1) * $pageCount;
-    $posts = fopen("db/" . $userId . ".db", "r");
-
-    for($i=0;$i<$shift;$i++) {
-        fgets($posts);
-    }
-
     $results = [];
-    $counter = 0;
-    while(!feof($posts) && $counter < $pageCount) {
-        if($line = fgets($posts)) {
-            $post = json_decode($line, true);
-            $results[] = $post;
+    $shift = ($page - 1) * $pageCount;
+    if(file_exists("db/" . $userId . ".db")) {
+        $posts = fopen("db/" . $userId . ".db", "r");
+
+        for ($i = 0; $i < $shift; $i++) {
+            fgets($posts);
         }
 
-        $counter++;
-    }
 
-    fclose($posts);
+        $counter = 0;
+        while (!feof($posts) && $counter < $pageCount) {
+            if ($line = fgets($posts)) {
+                $post = json_decode($line, true);
+                $results[] = $post;
+            }
+
+            $counter++;
+        }
+
+        fclose($posts);
+    }
     return $results;
 }
