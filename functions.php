@@ -162,6 +162,7 @@ function addPost($userId, $title, $body, $filePath = false, $fileName = false) {
 
 function searchByUser($userId, $search, $page = 1) {
     $pageCount = 2;
+    $counter = 0;
     $results = [];
     $shift = ($page - 1) * $pageCount;
     if(file_exists("db/" . $userId . ".db")) {
@@ -181,7 +182,7 @@ function searchByUser($userId, $search, $page = 1) {
         }
 
 
-        $counter = 0;
+
         while (!feof($posts) && $counter < $pageCount) {
             if ($line = fgets($posts)) {
                 $post = json_decode($line, true);
@@ -198,15 +199,63 @@ function searchByUser($userId, $search, $page = 1) {
         }
 
         fclose($posts);
+    } else {
+        $userCount = 0;
+        if(file_exists("db/users.db")) {
+            $lines = fopen("db/users.db", "r");
+            while (!feof($lines)) {
+                fgets($lines);
+                $userCount ++;
+            }
+
+        }
+        fclose($lines);
+
+        for ($i = 1; $i <= $userCount; $i++) {
+
+            if(file_exists("db/" . $i . ".db")) {
+                $posts = fopen("db/" . $i . ".db", "r");
+
+                for ($u = 0; $u < $shift;) {
+
+                    if ($line = fgets($posts)) {
+                        $post = json_decode($line, true);
+                        if (
+                            stripos($post['title'], $search) !== false ||
+                            stripos($post['body'], $search) !== false
+                        ) {
+                            $u++;
+                        }
+                    }
+                }
+
+
+                //$counter = 0;
+                while (!feof($posts) && $counter < $pageCount) {
+                    if ($line = fgets($posts)) {
+                        $post = json_decode($line, true);
+                        if (
+                            stripos($post['title'], $search) !== false ||
+                            stripos($post['body'], $search) !== false
+                        ) {
+                            $results[] = $post;
+                            $counter++;
+                        }
+                    }
+
+                }fclose($posts);
+            }
+
+        }
     }
     return $results;
 }
 
 function getPostsCountSearch($userId, $search) {
-    $fileName = "db/" . $userId . ".db";
+
     $counter = 0;
-    if(file_exists($fileName)) {
-        $posts = fopen($fileName, "r");
+    if(file_exists( "db/" . $userId . ".db")) {
+        $posts = fopen( "db/" . $userId . ".db", "r");
 
         if ($posts) {
             while (!feof($posts)) {
@@ -224,6 +273,39 @@ function getPostsCountSearch($userId, $search) {
             fclose($posts);
         }
     }
+    else {
+        $userCount = 0;
+        if(file_exists("db/users.db")) {
+            $lines = fopen("db/users.db", "r");
+            while (!feof($lines)) {
+                fgets($lines);
+                $userCount ++;
+            }
+
+        }
+        fclose($lines);
+
+        for ($i = 1; $i <= $userCount; $i++) {
+
+            if(file_exists("db/" . $i . ".db")) {
+                $posts = fopen("db/" . $i . ".db", "r");
+                    while (!feof($posts)) {
+                        if ($line = fgets($posts)) {
+                            $post = json_decode($line, true);
+                            if (
+                                stripos($post['title'], $search) !== false ||
+                                stripos($post['body'], $search) !== false
+                            ) {
+                                $counter++;
+                            }
+                        }
+
+                    }fclose($posts);
+                }
+
+            }
+        }
+
 
     return $counter;
 }
@@ -344,3 +426,5 @@ function getPhotosByUserId($userId, $page = 1) {
     }
     return $results;
 }
+
+

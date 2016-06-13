@@ -53,7 +53,10 @@ $baseFile = $_SERVER['SCRIPT_NAME'];
                     <div class="input-group">
                         <?php if(isset($currentUser)) {
                             echo "<input type=\"hidden\" value=\"{$currentUser['id']}\" name=\"user-id\" />";
-                        } ?>
+                        }
+                        else {
+                            echo "<input type=\"hidden\" value=\"all\" name=\"user-id\" />";
+                        }?>
                         <input name="search" type="text" class="form-control" placeholder="Search for...">
       <span class="input-group-btn">
         <button class="btn btn-default" type="submit">Go!</button>

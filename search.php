@@ -1,8 +1,7 @@
 <?php
     require "functions.php";
     require "header.php";
-
-
+    getPostsCountSearch($userId, $search);
 ?>
 
 <div class="container">
@@ -20,6 +19,7 @@
 
                 <div class="post">
                     <h1 class="post-header"><?php echo $post['title']; ?></h1>
+
                     <?php if($post['image']) { ?>
                         <hr />
                         <img src="img/<?php echo $post['image']; ?>" />
