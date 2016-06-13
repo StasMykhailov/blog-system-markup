@@ -1,3 +1,7 @@
+<?php
+$baseFile = $_SERVER['SCRIPT_NAME'];
+
+?>
 <!DOCTYPE html>
 <html>
 <head lang="en">
@@ -40,8 +44,8 @@
             <ul class="nav navbar-nav">
                 <?php if(isset($currentUser)) { ?>
                 <?php //TODO: implement active li ?>
-                <li class="active"><a href="blog.php?user-id=<?php echo $currentUser['id'] ?>">Posts <span class="sr-only">(current)</span></a></li>
-                <li><a href="photos.php?user-id=<?php echo $currentUser['id'] ?>">Photos</a></li>
+                <li class=<?php echo (strpos($baseFile, "blog.php") == true) ? "active" : ""?>><a href="blog.php?user-id=<?php echo $currentUser['id'] ?>">Posts <span class="sr-only">(current)</span></a></li>
+                <li class=<?php echo (strpos($baseFile, "photos.php") == true) ? "active" : ""?>><a href="photos.php?user-id=<?php echo $currentUser['id'] ?>">Photos</a></li>
                 <?php } ?>
             </ul>
             <form class="navbar-form navbar-left" role="search" method="GET" action="search.php">
@@ -68,8 +72,8 @@
                     <?php echo $_SESSION['firstName'] . " " . $_SESSION['lastName']; ?>
                     <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="blog.php?user-id=<?php echo $_SESSION['userId'] ?>">My Blog</a></li>
-                    <li class="active"><a href="add-post.php">Add post</a></li>
+                    <li class=<?php echo (strpos($baseFile, "blog.php") == true || strpos($baseFile, "photos.php") == true) ? "active" : ""?>><a href="blog.php?user-id=<?php echo $_SESSION['userId'] ?>">My Blog</a></li>
+                    <li class=<?php echo (strpos($baseFile, "add-post.php") == true) ? "active" : ""?>><a href="add-post.php">Add post</a></li>
                     <li role="separator" class="divider"></li>
                     <li><a href="logout.php">Logout</a></li>
                 </ul>

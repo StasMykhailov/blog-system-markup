@@ -5,41 +5,7 @@
 
 <div class="container">
 
-    <div class="photo">
-        <img src="img/dog.jpg" />
-    </div>
 
-    <div class="photo">
-        <img src="img/dog.jpg" />
-    </div>
-
-    <div class="photo">
-        <img src="img/dog.jpg" />
-    </div>
-
-    <div class="photo">
-        <img src="img/dog.jpg" />
-    </div>
-
-    <div class="photo">
-        <img src="img/dog.jpg" />
-    </div>
-
-    <div class="photo">
-        <img src="img/dog.jpg" />
-    </div>
-
-    <div class="photo">
-        <img src="img/dog.jpg" />
-    </div>
-
-    <div class="photo">
-        <img src="img/dog.jpg" />
-    </div>
-
-    <div class="photo">
-        <img src="img/dog.jpg" />
-    </div>
 
     <div class="clearfix clear"></div>
 

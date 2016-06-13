@@ -1,6 +1,8 @@
 <?php
+    $curPage = basename(__FILE__);
     require "functions.php";
     require "header.php";
+
 ?>
 
 <div class="container">
