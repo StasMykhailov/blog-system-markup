@@ -5,25 +5,71 @@
 
 <div class="container">
 
+    <?php
+    if(!isset($_GET['user-id'])) {
+        header("Location: index.php");
+    } else {
+        $posts = getPhotosByUserId($_GET['user-id'],
+            (isset($_GET['page']) && $_GET['page'] > 1) ? $_GET['page'] : 1);
+
+        foreach($posts as $post) {
+            ?>
+
+            <div class="post">
+
+                <?php if($post['image']) { ?>
+                    <hr />
+                    <img src="img/<?php echo $post['image']; ?>" />
+                <?php } ?>
+                 <p class="post-when-by">
+                    <?php echo $post['createdAt']; ?>
+                </p>
+            </div>
+            <?php
 
 
-    <div class="clearfix clear"></div>
+        }
+
+    }
+
+    ?>
 
 
     <nav>
         <ul class="pagination">
             <li>
-                <a href="#" aria-label="Previous">
+                <a href="photos.php?user-id=<?php echo ($_GET['page'] < 2) ?
+                    $_GET['user-id'] . "&page=1" : $_GET['user-id'] . "&page=" . ($_GET['page'] - 1)
+                ?>" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
-            <li><a href="#">1</a></li>
-            <li><a href="#">2</a></li>
-            <li><a href="#">3</a></li>
-            <li><a href="#">4</a></li>
-            <li><a href="#">5</a></li>
+
+            <?php
+            $postCount = getPhotosCount($_GET['user-id']);
+            $pageCount = ceil($postCount / 2);
+
+            for($i=0;$i<$pageCount;$i++) {
+
+                ?>
+
+                <li><a href="photos.php?user-id=<?php
+                    echo $_GET['user-id'] . "&page=" . ($i + 1)
+                    ?>"><?php echo $i + 1; ?></a></li>
+
+            <?php } ?>
             <li>
-                <a href="#" aria-label="Next">
+                <a href="photos.php?user-id=<?php
+                if (!isset($_GET['page']) && $pageCount > 1) {
+                    echo $_GET['user-id'] . "&page=2";
+                }
+                elseif ($_GET['page'] >= $pageCount) {
+                    echo $_GET['user-id'] . "&page=" . $pageCount;
+                }
+                else {
+                    echo $_GET['user-id'] . "&page=" . ($_GET['page'] + 1);
+                }
+                ?>" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>

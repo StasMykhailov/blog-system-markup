@@ -53,7 +53,9 @@
     <nav>
         <ul class="pagination">
             <li>
-                <a href="#" aria-label="Previous">
+                <a href="search.php?user-id=<?php echo ($_GET['page'] < 2) ?
+                    $_GET['user-id'] . "&search=" . $_GET['search'] . "&page=1" : $_GET['user-id'] . "&search=" . $_GET['search'] . "&page=" . ($_GET['page'] - 1)
+                ?>" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
@@ -75,7 +77,17 @@
             ?>
 
             <li>
-                <a href="#" aria-label="Next">
+                <a href="search.php?user-id=<?php
+                if (!isset($_GET['page']) && $pages > 1) {
+                    echo $_GET['user-id'] . "&search=" . $_GET['search'] .  "&page=2";
+                }
+                elseif ($_GET['page'] >= $pages) {
+                    echo $_GET['user-id'] . "&search=" . $_GET['search'] .  "&page=" . $pages;
+                }
+                else {
+                    echo $_GET['user-id'] . "&search=" . $_GET['search'] . "&page=" . ($_GET['page'] + 1);
+                }
+                ?>" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>

@@ -45,7 +45,9 @@
     <nav>
         <ul class="pagination">
             <li>
-                <a href="#" aria-label="Previous">
+                <a href="blog.php?user-id=<?php echo ($_GET['page'] < 2) ?
+                    $_GET['user-id'] . "&page=1" : $_GET['user-id'] . "&page=" . ($_GET['page'] - 1)
+                    ?>" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
@@ -64,7 +66,17 @@
 
             <?php } ?>
             <li>
-                <a href="#" aria-label="Next">
+                <a href="blog.php?user-id=<?php
+                    if (!isset($_GET['page']) && $pageCount > 1) {
+                        echo $_GET['user-id'] . "&page=2";
+                    }
+                    elseif ($_GET['page'] >= $pageCount) {
+                        echo $_GET['user-id'] . "&page=" . $pageCount;
+                    }
+                    else {
+                        echo $_GET['user-id'] . "&page=" . ($_GET['page'] + 1);
+                    }
+                ?>" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>

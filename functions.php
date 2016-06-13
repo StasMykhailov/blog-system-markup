@@ -314,3 +314,33 @@ function getPostsByUserId($userId, $page = 1) {
     }
     return $results;
 }
+
+function getPhotosByUserId($userId, $page = 1) {
+    $pageCount = 2;
+    $results = [];
+    $shift = ($page - 1) * $pageCount;
+    if(file_exists("db/" . $userId . ".db")) {
+        $posts = fopen("db/" . $userId . ".db", "r");
+
+        for ($i = 0; $i < $shift; $i++) {
+            fgets($posts);
+        }
+
+
+        $counter = 0;
+        while (!feof($posts) && $counter < $pageCount) {
+            if ($line = fgets($posts) ) {
+                $post = json_decode($line, true);
+
+                if (!empty($post['image'])) {
+                    $results[] = $post;
+                }
+            }
+
+            $counter++;
+        }
+
+        fclose($posts);
+    }
+    return $results;
+}
